@@ -66,11 +66,11 @@ LINE_CHANNEL_SECRET=YOUR_CHANNEL_SECRET
 LINE_PRIVATE_KEY_PATH=./keys/private_key.pem
 ```
 
-### 5. 啟動 Flask Webhook 服務
-
-```bash
-python app.py
-```
+> 📝 若你在 Render 上使用 Secret Files，上述最後一行請改為：
+>
+> ```env
+> LINE_PRIVATE_KEY_PATH=/etc/secrets/private_key.pem
+> ```
 
 ## 🌐 Render 部署教學（免費部署 LINE Bot）
 
@@ -92,7 +92,7 @@ python app.py
 | ------------- | --------------------------------- |
 | Runtime       | Python 3.9 (或相容版本)           |
 | Build Command | `pip install -r requirements.txt` |
-| Start Command | `python app.py`                   |
+| Start Command | `gunicorn app:app`                |
 
 ### 3️⃣ 設定環境變數（Environment Variables）
 
@@ -102,18 +102,29 @@ python app.py
 LINE_CHANNEL_ID=...
 LINE_CHANNEL_KID=...
 LINE_CHANNEL_SECRET=...
-LINE_PRIVATE_KEY_PATH=./keys/private_key.pem
+LINE_PRIVATE_KEY_PATH=/etc/secrets/private_key.pem
 ```
 
-### 4️⃣ 手動上傳私鑰 `private_key.pem`
+### 4️⃣ 上傳私鑰：使用 Secret Files (建議做法)
 
-* 點選「Shell」或使用 `Deploy Script`
+Render 提供官方機密檔案儲存系統：
 
-```bash
-mkdir keys
-nano keys/private_key.pem
-# 貼上內容，Ctrl + X 儲存
-```
+> 🔒 **Secret Files**
+> Store plaintext files containing secret data (such as a .env file or a private key).
+> Access during builds and at runtime from your app's root, or from `/etc/secrets/<filename>`
+
+**操作方式：**
+
+1. Advanced → `Secret Files`
+2. 點選「Add Secret File」
+3. 上傳 `private_key.pem`，Render 會自動掛載到：
+
+   ```
+   /etc/secrets/private_key.pem
+   ```
+4. 確保 `.env` 中的 `LINE_PRIVATE_KEY_PATH` 設為該路徑
+
+✅ 即使重新部署也不會遺失密鑰檔案！
 
 ### 5️⃣ LINE Webhook 設定
 
