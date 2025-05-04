@@ -1,0 +1,8 @@
+# 機密與敏感資料
+.env
+keys/private_key.pem
+cache/access_token.json
+
+# Python cache
+__pycache__/
+*.pyc
