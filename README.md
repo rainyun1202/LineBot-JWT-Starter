@@ -1,3 +1,5 @@
+📘 語言選擇｜Language: [中文](README.md) | [English](README.en.md)
+
 # 🤖 LINEBot JWT Starter
 
 一個使用 Python Flask 快速部署的 LINE Bot 專案，支援 JWT 安全簽章與 Access Token 快取，並可一鍵部署到 [Render](https://render.com)。
