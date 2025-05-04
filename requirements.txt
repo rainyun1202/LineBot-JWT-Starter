@@ -1,0 +1,7 @@
+flask
+python-dotenv
+line-bot-sdk==3.*
+PyJWT
+jwcrypto
+requests
+gunicorn
