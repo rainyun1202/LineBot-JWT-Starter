@@ -31,5 +31,6 @@ def callback():
 def handle_message(event):
     reply_echo_message(event)
 
-if __name__ == "__main__":
-    app.run(port=8000)
+# Use Gunicorn
+# if __name__ == "__main__":
+#     app.run(port=8000)
