@@ -1,6 +1,8 @@
+📘 Language Selection｜語言選擇: [中文](README.md) | [English](README.en.md)
+
 # 🤖 LINEBot JWT Starter
 
-A Python Flask-based LINE Bot project that supports secure JWT signing and access token caching, with simple deployment on [Render](https://render.com).
+A Python Flask-based LINE Bot project that supports secure JWT signing and access token caching. Deployable with one click on [Render](https://render.com).
 
 ---
 
@@ -8,29 +10,29 @@ A Python Flask-based LINE Bot project that supports secure JWT signing and acces
 
 ```plaintext
 linebot_jwt_starter/
-🔼 app.py                      # 🔁 Flask application entry point (handles webhook)
+🔼 app.py                      # 🔁 Flask entry point (Webhook endpoint)
 🔼 bot/
-🔼 └─ handler.py              # 📉 Handles LINE messages, currently a simple echo function for testing
+🔼 └─ handler.py              # 📉 Handles messages from LINE (simple echo logic)
 🔼 auth/
 🔼 ├─ generate_keys.py        # 🔐 Generates RSA keys (PEM + JWK)
-🔼 ├─ generate_jwt.py         # 🔐 Generates JWT using the private key
-🔼 └─ access_token.py         # 🔑 Caches and auto-renews LINE access tokens
+🔼 ├─ generate_jwt.py         # 🔐 Generates JWT from private key
+🔼 └─ access_token.py         # 🔑 Handles access token caching and renewal
 🔼 keys/
-🔼 └─ private_key.pem         # 🔐 Stores the private key (DO NOT commit to GitHub)
+🔼 └─ private_key.pem         # 🔐 RSA private key (should not be pushed to GitHub)
 🔼 cache/
-🔼 └─ access_token.json       # 🗾 Caches access tokens (DO NOT commit to GitHub)
-🔼 .env                        # ⚙️ Stores secrets and configurations (DO NOT commit)
-🔼 .env.example                # 📄 Environment variable example
-🔼 requirements.txt            # 📆 Python dependencies
+🔼 └─ access_token.json       # 🗾 Cached access token (should not be pushed to GitHub)
+🔼 .env                        # ⚙️ Local environment variables (should not be committed)
+🔼 .env.example                # 📄 Example for .env variables
+🔼 requirements.txt            # 📦 Python dependencies
 🔼 README.md
 🔼 README.en.md
 ```
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Quick Start
 
-### 1. Install dependencies
+### 1. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
@@ -48,14 +50,14 @@ This will generate:
 * `private_key.jwk.json`
 * `public_key.jwk.json`
 
-### 3. Register the Public Key in LINE Developer Console
+### 3. Register Public Key on LINE Developer Console
 
-1. Go to [LINE Developers Console](https://developers.line.biz/console/)
-2. Select your channel → Messaging API → Assertion Signing Key
-3. Paste the contents of `public_key.jwk.json`
-4. Save it and note down the returned `kid`
+1. Log into [LINE Developers Console](https://developers.line.biz/console/)
+2. Go to your channel → Messaging API → Assertion Signing Key
+3. Paste the content of `public_key.jwk.json`
+4. Save and note the generated `kid`
 
-### 4. Set environment variables in `.env`
+### 4. Set up `.env`
 
 ```env
 LINE_CHANNEL_ID=YOUR_LINE_CHANNEL_ID
@@ -64,69 +66,80 @@ LINE_CHANNEL_SECRET=YOUR_CHANNEL_SECRET
 LINE_PRIVATE_KEY_PATH=./keys/private_key.pem
 ```
 
-### 5. Run the local Flask server
-
-```bash
-python app.py
-```
+> 📝 If you're using Secret Files on Render, change the last line to:
+>
+> ```env
+> LINE_PRIVATE_KEY_PATH=/etc/secrets/private_key.pem
+> ```
 
 ---
 
-## 🌐 Deploy on Render (Free Hosting for LINE Bot)
+## 🌐 Deploying to Render (Free Hosting)
 
 ### 📌 Prerequisites
 
-1. Push your project to GitHub (public recommended)
-2. Create a LINE Bot and obtain Channel ID and Secret
-3. Have the generated `kid` and `private_key.pem` ready
+1. Push your project to GitHub (preferably public)
+2. Create your LINE bot and get your Channel ID & Secret
+3. Generate and store the `kid` and `private_key.pem`
 
 ### 1️⃣ Create a Web Service
 
-* Log in to [Render](https://dashboard.render.com/)
-* Click "New Web Service" → Connect GitHub → Select your repo
-* Choose `linebot_jwt_starter` repo
+* Log into [Render Dashboard](https://dashboard.render.com/)
+* Click "New Web Service" → Connect your GitHub repo
+* Select the `linebot_jwt_starter` project
 
-### 2️⃣ Configure Build and Start
+### 2️⃣ Configure Build Settings
 
-| Item          | Value                               |
-| ------------- | ----------------------------------- |
-| Runtime       | Python 3.9 (or compatible version)  |
-| Build Command | `pip install -r requirements.txt`   |
-| Start Command | `python app.py`                     |
+| Field         | Value                             |
+| ------------- | --------------------------------- |
+| Runtime       | Python 3.9 (or compatible)        |
+| Build Command | `pip install -r requirements.txt` |
+| Start Command | `gunicorn app:app`                |
 
-### 3️⃣ Add Environment Variables
+### 3️⃣ Set Environment Variables
 
-Go to: Render Project → Environment → Add:
+Go to your Render project → Environment → Add Environment Variables:
 
-```
+```env
 LINE_CHANNEL_ID=...
 LINE_CHANNEL_KID=...
 LINE_CHANNEL_SECRET=...
-LINE_PRIVATE_KEY_PATH=./keys/private_key.pem
+LINE_PRIVATE_KEY_PATH=/etc/secrets/private_key.pem
 ```
 
-### 4️⃣ Upload `private_key.pem` Securely
+### 4️⃣ Upload Private Key with Secret Files
 
-* Use Render's Shell to create manually:
+Render provides official secret file management:
 
-```bash
-mkdir keys
-nano keys/private_key.pem
-# Paste the key, save with Ctrl + X
-```
+> 🔒 **Secret Files**
+> Store plaintext files containing secret data (such as a .env file or a private key).
+> Access during builds and at runtime from your app's root, or from `/etc/secrets/<filename>`
 
-### 5️⃣ Configure LINE Webhook
+**Steps:**
 
-Go to [LINE Developers Console](https://developers.line.biz/console):
+1. Go to the Advanced tab → `Secret Files`
+2. Click "Add Secret File"
+3. Upload `private_key.pem`, which Render will mount to:
 
-* Set Webhook URL as the one provided by Render:
+   ```
+   /etc/secrets/private_key.pem
+   ```
+4. Ensure your `.env` uses that same path.
+
+✅ This ensures your key persists even after redeploys!
+
+### 5️⃣ LINE Webhook Setup
+
+In [LINE Developers Console](https://developers.line.biz/console):
+
+* Webhook URL should be your Render domain, e.g.:
 
 ```
 https://your-app-name.onrender.com/callback
 ```
 
-* Click "Verify" to confirm success
-* Make sure "Use Webhook" is ON
+* Click "Verify" to test
+* Make sure "Use Webhook" is enabled
 
 ---
 
@@ -144,4 +157,4 @@ https://your-app-name.onrender.com/callback
 
 ## 🙏 Feedback
 
-If you encounter issues or want to contribute, feel free to open an issue or submit a PR — and don't forget to ⭐ the repo!
+If you have suggestions, feel free to submit a PR, open an issue, or give this project a ⭐.
