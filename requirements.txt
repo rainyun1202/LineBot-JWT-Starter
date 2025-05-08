@@ -5,3 +5,4 @@ PyJWT
 jwcrypto
 requests
 gunicorn
+firebase-admin
