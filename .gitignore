@@ -2,7 +2,7 @@
 .env
 keys/private_key.pem
 cache/access_token.json
-
+cache/firebase_service_account.json
 # Python cache
 __pycache__/
 *.pyc
