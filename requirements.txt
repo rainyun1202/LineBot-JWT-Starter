@@ -6,3 +6,4 @@ jwcrypto
 requests
 gunicorn
 firebase-admin
+lunar_python
