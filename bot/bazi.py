@@ -1,6 +1,6 @@
 from lunar_python import Solar
 
-def get_bazi_fortune_report(date_str: str, gender: int = 1) -> str:
+def get_bazi_from_input(date_str: str, gender: int = 1) -> str:
     """
     使用者輸入陽曆生日與時辰（YYYY/MM/DD HH:MM），並指定性別（1=男, 0=女）
     回傳八字四柱、五行、納音、十神、大運與流年資訊
@@ -50,9 +50,3 @@ def get_bazi_fortune_report(date_str: str, gender: int = 1) -> str:
     ]
 
     return "\n".join(lines)
-
-if __name__ == "__main__":
-    birthday = "1999/09/04 23:00"  # 陽曆生日
-    gender = 1                     # 1=男, 0=女
-    result = get_bazi_fortune_report(birthday, gender)
-    print(result)
