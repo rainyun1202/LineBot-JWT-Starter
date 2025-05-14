@@ -4,8 +4,11 @@ from dotenv import load_dotenv
 
 from linebot.v3 import WebhookHandler
 from linebot.v3.exceptions import InvalidSignatureError
-from linebot.v3.webhooks import MessageEvent, TextMessageContent
-from bot.handler import reply_echo_message
+from linebot.v3.webhooks import (
+    MessageEvent, TextMessageContent,
+    FollowEvent
+)
+from bot.handler import handle_text_message, handle_follow
 
 load_dotenv()
 
@@ -27,10 +30,17 @@ def callback():
 
     return 'OK'
 
-@handler.add(MessageEvent, message=TextMessageContent)
-def handle_message(event):
-    reply_echo_message(event)
+# ✅ 健康檢查用（給 uptime robot / render ping）
+@app.route("/health", methods=["GET", "HEAD"])
+def health_check():
+    return "OK", 200
 
-# Use Gunicorn
-# if __name__ == "__main__":
-#     app.run(port=8000)
+# ✅ 訊息處理（文字訊息）
+@handler.add(MessageEvent, message=TextMessageContent)
+def handle_text(event):
+    handle_text_message(event)
+
+# ✅ 使用者加入好友處理
+@handler.add(FollowEvent)
+def handle_user_follow(event):
+    handle_follow(event)
