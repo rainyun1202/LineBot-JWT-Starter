@@ -1,8 +1,7 @@
 from linebot.v3.messaging import (
     Configuration, ApiClient, MessagingApi,
     ReplyMessageRequest, TextMessage, QuickReply, QuickReplyItem, MessageAction,
-    FlexMessage, FlexContainer, BubbleContainer, BoxComponent, TextComponent, ButtonComponent,
-    DatetimePickerAction
+    FlexMessage
 )
 from linebot.v3.webhooks import FollowEvent
 from auth.access_token import get_access_token
@@ -14,8 +13,8 @@ import os
 # === 使用者狀態節點 ===
 USERS_REF = db.reference("users")
 
-# === 載入 birthday_flex.json ===
-FLEX_JSON_PATH = os.path.join(os.path.dirname(__file__), "birthday_flex.json")
+# === 載入 birthday_flex.json（支援 Render Secret Files） ===
+FLEX_JSON_PATH = os.getenv("BIRTHDAY_FLEX_PATH", "bot/flex/birthday_flex.json")
 with open(FLEX_JSON_PATH, "r", encoding="utf-8") as f:
     BIRTHDAY_FLEX = json.load(f)
 
@@ -42,26 +41,13 @@ def handle_follow(event):
 def ask_birthday_and_gender(reply_token):
     reply_message(reply_token, [FlexMessage(alt_text="請輸入生日與性別", contents=BIRTHDAY_FLEX)])
 
-# === 回覆確認卡片 ===
+# === 回覆確認卡片（改為簡單文字訊息版） ===
 def confirm_user_input(reply_token, user_data):
     date = user_data.get("birthday_date", "未知")
     time = user_data.get("birthday_time", "未知")
     gender = "男" if user_data.get("gender") == 1 else "女"
-    confirm_text = f"✅ 你的輸入如下：\n📅 {date} {time}\n👤 性別：{gender}\n\n確認無誤請點下方按鈕開始分析"
-
-    bubble = BubbleContainer(
-        body=BoxComponent(
-            layout="vertical",
-            contents=[
-                TextComponent(text=confirm_text, wrap=True),
-                ButtonComponent(
-                    action=MessageAction(label="開始分析", text="分析八字"),
-                    style="primary"
-                )
-            ]
-        )
-    )
-    reply_message(reply_token, [FlexMessage(alt_text="確認輸入資料", contents=bubble)])
+    confirm_text = f"✅ 你的輸入如下：\n📅 {date} {time}\n👤 性別：{gender}\n\n請輸入『分析八字』開始分析"
+    reply_message(reply_token, [TextMessage(text=confirm_text)])
 
 # === 儲存使用者資料欄位 ===
 def save_user_data(user_id, field, value):
