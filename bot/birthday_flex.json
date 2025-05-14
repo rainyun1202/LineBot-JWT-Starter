@@ -1,0 +1,74 @@
+{
+  "type": "bubble",
+  "size": "mega",
+  "body": {
+    "type": "box",
+    "layout": "vertical",
+    "spacing": "md",
+    "contents": [
+      {
+        "type": "text",
+        "text": "建立出生資訊",
+        "weight": "bold",
+        "size": "lg",
+        "align": "center"
+      },
+      {
+        "type": "button",
+        "action": {
+          "type": "datetimepicker",
+          "label": "📅 選擇生日",
+          "data": "birthday_selected",
+          "mode": "date",
+          "initial": "2000-01-01",
+          "max": "2025-12-31",
+          "min": "1900-01-01"
+        },
+        "style": "primary"
+      },
+      {
+        "type": "button",
+        "action": {
+          "type": "datetimepicker",
+          "label": "⏰ 選擇出生時辰",
+          "data": "birthtime_selected",
+          "mode": "time",
+          "initial": "00:00",
+          "max": "23:59",
+          "min": "00:00"
+        },
+        "style": "primary"
+      },
+      {
+        "type": "text",
+        "text": "🔸 選擇性別：",
+        "weight": "bold"
+      },
+      {
+        "type": "box",
+        "layout": "horizontal",
+        "spacing": "md",
+        "contents": [
+          {
+            "type": "button",
+            "action": {
+              "type": "message",
+              "label": "👨 男",
+              "text": "性別 男"
+            },
+            "style": "secondary"
+          },
+          {
+            "type": "button",
+            "action": {
+              "type": "message",
+              "label": "👩 女",
+              "text": "性別 女"
+            },
+            "style": "secondary"
+          }
+        ]
+      }
+    ]
+  }
+}
