@@ -3,6 +3,7 @@ from linebot.v3.messaging import (
     ReplyMessageRequest, TextMessage, QuickReply, QuickReplyItem, MessageAction,
     FlexMessage
 )
+from linebot.v3.messaging.models import FlexContainer
 from linebot.v3.webhooks import FollowEvent
 from auth.access_token import get_access_token
 from firebase_admin import db
@@ -33,7 +34,8 @@ def reply_message(reply_token, messages):
 
 # === 回覆生日與性別選擇 Flex 卡片 ===
 def ask_birthday_and_gender(reply_token):
-    reply_message(reply_token, [FlexMessage(alt_text="請輸入生日與性別", contents=BIRTHDAY_FLEX)])
+    container = FlexContainer.from_dict(BIRTHDAY_FLEX)
+    reply_message(reply_token, [FlexMessage(alt_text="請輸入生日與性別", contents=container)])
 
 # === 回覆確認卡片（改為簡單文字訊息版） ===
 def confirm_user_input(reply_token, user_data):
