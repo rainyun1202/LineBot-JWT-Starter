@@ -31,12 +31,6 @@ def reply_message(reply_token, messages):
             )
         )
 
-# === 使用者加入時歡迎訊息 ===
-def handle_follow(event):
-    reply_message(event.reply_token, [
-        TextMessage(text="👋 歡迎加入，點選下方『八字命盤』開始輸入生日與性別！")
-    ])
-
 # === 回覆生日與性別選擇 Flex 卡片 ===
 def ask_birthday_and_gender(reply_token):
     reply_message(reply_token, [FlexMessage(alt_text="請輸入生日與性別", contents=BIRTHDAY_FLEX)])
