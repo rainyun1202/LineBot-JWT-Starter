@@ -8,7 +8,7 @@ from linebot.v3.webhooks import (
     MessageEvent, TextMessageContent,
     FollowEvent
 )
-from bot.handler import handle_text_message, handle_follow
+from bot.handler import handle_text_message
 
 load_dotenv()
 
