@@ -39,8 +39,3 @@ def health_check():
 @handler.add(MessageEvent, message=TextMessageContent)
 def handle_text(event):
     handle_text_message(event)
-
-# ✅ 使用者加入好友處理
-@handler.add(FollowEvent)
-def handle_user_follow(event):
-    handle_follow(event)
