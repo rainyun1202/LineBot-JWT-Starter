@@ -45,3 +45,8 @@ def handle_postback_event(event):
     from bot.handler import handle_postback
     handle_postback(event)
 
+# 提供 UptimeRobot or cron-job.org 呼叫響應
+@app.route("/", methods=["GET"])
+def health_check():
+    return "✅ LINE Bot is alive!", 200
+
