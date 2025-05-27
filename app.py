@@ -33,7 +33,7 @@ def callback():
 # ✅ 健康檢查用（給 uptime robot / render ping）
 @app.route("/health", methods=["GET", "HEAD"])
 def health_check():
-    return "OK", 200
+    return "✅ LINE Bot is alive!", 200
 
 # ✅ 訊息處理（文字訊息）
 @handler.add(MessageEvent, message=TextMessageContent)
@@ -45,8 +45,4 @@ def handle_postback_event(event):
     from bot.handler import handle_postback
     handle_postback(event)
 
-# 提供 UptimeRobot or cron-job.org 呼叫響應
-@app.route("/", methods=["GET"])
-def health_check():
-    return "✅ LINE Bot is alive!", 200
 
