@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, abort
+from flask import Flask, request, abort, jsonify
 from dotenv import load_dotenv
 
 from linebot.v3 import WebhookHandler
@@ -31,9 +31,10 @@ def callback():
     return 'OK'
 
 # ✅ 健康檢查用（給 uptime robot / render ping）
-@app.route("/health", methods=["GET", "HEAD"])
+@app.route("/", methods=["GET", "HEAD"])
 def health_check():
-    return "✅ LINE Bot is alive!", 200
+    return jsonify(message="✅ LINE Bot is alive!", status="ok"), 200
+
 
 # ✅ 訊息處理（文字訊息）
 @handler.add(MessageEvent, message=TextMessageContent)
