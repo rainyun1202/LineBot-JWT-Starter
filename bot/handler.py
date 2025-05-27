@@ -67,7 +67,7 @@ def increment_error(user_id):
     errors = data.get("errors", 0) + 1
     if errors >= MAX_ERRORS:
         user_ref.update({"step": None, "errors": 0})
-        return True  # 表示需要重新開始
+        return True
     user_ref.update({"errors": errors})
     return False
 
@@ -83,6 +83,9 @@ def handle_text_message(event):
     if msg in ["八字命盤", "開始"]:
         save_user_data(user_id, "step", "ask_input")
         save_user_data(user_id, "errors", 0)
+        save_user_data(user_id, "birthday_date", None)
+        save_user_data(user_id, "birthday_time", None)
+        save_user_data(user_id, "gender", None)
         return ask_birthday_and_gender(reply_token)
 
     if step == "done":
@@ -97,13 +100,17 @@ def handle_text_message(event):
                     return reply_message(reply_token, [TextMessage(text="⚠️ 多次輸入錯誤，請重新輸入『八字命盤』開始")])
                 return reply_message(reply_token, [TextMessage(text="⚠️ 請先完成出生日期與時辰的輸入")])
             gender_str = msg.replace("性別", "").strip()
+            if gender_str not in ["男", "女"]:
+                if increment_error(user_id):
+                    return reply_message(reply_token, [TextMessage(text="⚠️ 多次輸入錯誤，請重新輸入『八字命盤』開始")])
+                return reply_message(reply_token, [TextMessage(text="⚠️ 請輸入正確性別：性別 男 或 性別 女")])
             gender = 1 if gender_str == "男" else 0
             save_user_data(user_id, "gender", gender)
             save_user_data(user_id, "step", "confirm")
             return confirm_user_input(reply_token, get_user_data(user_id))
 
     if step == "confirm" and msg.startswith("分析八字"):
-        if all(k in user_data for k in ["birthday_date", "birthday_time", "gender"]):
+        if all(user_data.get(k) for k in ["birthday_date", "birthday_time", "gender"]):
             save_user_data(user_id, "step", "done")
             from bot.bazi import get_bazi_from_input
             dt_str = f"{user_data['birthday_date']} {user_data['birthday_time']}"
@@ -123,6 +130,7 @@ def handle_postback(event: PostbackEvent):
         date = event.postback.params.get("date")
         if date:
             save_user_data(user_id, "birthday_date", date.replace("-", "/"))
+            save_user_data(user_id, "step", "ask_input")
             return reply_message(reply_token, [
                 TextMessage(text=f"✅ 出生日期已設定為：{date.replace('-', '/')}\n請繼續選擇出生時辰")
             ])
