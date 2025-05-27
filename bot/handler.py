@@ -90,12 +90,12 @@ def handle_text_message(event):
             TextMessage(text="✅ 你已完成輸入並分析，如需重新開始請輸入『八字命盤』")
         ])
 
-    if step == "ask_input":
+    if step in ["ask_input", "ask_gender"]:
         if msg.startswith("性別"):
             if not user_data.get("birthday_date") or not user_data.get("birthday_time"):
                 if increment_error(user_id):
                     return reply_message(reply_token, [TextMessage(text="⚠️ 多次輸入錯誤，請重新輸入『八字命盤』開始")])
-                return reply_message(reply_token, [TextMessage(text="⚠️ 請先選擇生日與出生時辰")])
+                return reply_message(reply_token, [TextMessage(text="⚠️ 請先完成出生日期與時辰的輸入")])
             gender_str = msg.replace("性別", "").strip()
             gender = 1 if gender_str == "男" else 0
             save_user_data(user_id, "gender", gender)
@@ -123,7 +123,9 @@ def handle_postback(event: PostbackEvent):
         date = event.postback.params.get("date")
         if date:
             save_user_data(user_id, "birthday_date", date.replace("-", "/"))
-            return reply_message(reply_token, [TextMessage(text=f"✅ 出生日期已設定為：{date.replace('-', '/')}\n請繼續選擇出生時辰")])
+            return reply_message(reply_token, [
+                TextMessage(text=f"✅ 出生日期已設定為：{date.replace('-', '/')}\n請繼續選擇出生時辰")
+            ])
 
     if data == "birthtime_selected":
         time = event.postback.params.get("time")
@@ -134,4 +136,6 @@ def handle_postback(event: PostbackEvent):
                 save_user_data(user_id, "step", "ask_gender")
                 return reply_message(reply_token, [TextMessage(text=f"✅ 出生時辰已設定為：{time}\n請點選性別")])
             else:
+                if increment_error(user_id):
+                    return reply_message(reply_token, [TextMessage(text="⚠️ 多次錯誤，請重新輸入『八字命盤』開始")])
                 return reply_message(reply_token, [TextMessage(text="⚠️ 請先選擇出生日期")])
