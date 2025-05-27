@@ -6,7 +6,7 @@ from linebot.v3 import WebhookHandler
 from linebot.v3.exceptions import InvalidSignatureError
 from linebot.v3.webhooks import (
     MessageEvent, TextMessageContent,
-    FollowEvent
+    FollowEvent, PostbackEvent
 )
 from bot.handler import handle_text_message
 
@@ -39,3 +39,9 @@ def health_check():
 @handler.add(MessageEvent, message=TextMessageContent)
 def handle_text(event):
     handle_text_message(event)
+
+@handler.add(PostbackEvent)
+def handle_postback_event(event):
+    from bot.handler import handle_postback
+    handle_postback(event)
+
