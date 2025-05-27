@@ -4,7 +4,7 @@ from linebot.v3.messaging import (
     FlexMessage
 )
 from linebot.v3.messaging.models import FlexContainer
-from linebot.v3.webhooks import FollowEvent
+from linebot.v3.webhooks import FollowEvent, PostbackEvent
 from auth.access_token import get_access_token
 from firebase_admin import db
 from datetime import datetime
@@ -60,12 +60,12 @@ def handle_text_message(event):
     msg = event.message.text.strip()
     reply_token = event.reply_token
 
+    user_data = get_user_data(user_id)
+    step = user_data.get("step")
+
     if msg in ["八字命盤", "開始"]:
         save_user_data(user_id, "step", "ask_input")
         return ask_birthday_and_gender(reply_token)
-
-    user_data = get_user_data(user_id)
-    step = user_data.get("step")
 
     # 處理生日與時間輸入（使用者以文字輸入）
     if step == "ask_input" and ("/" in msg or "-" in msg) and (":" in msg):
@@ -88,13 +88,41 @@ def handle_text_message(event):
 
     # 使用者確認後分析八字
     if msg.startswith("分析八字"):
-        user_data = get_user_data(user_id)
+        if step != "confirm":
+            return reply_message(reply_token, [TextMessage(text="⚠️ 請先完成出生資料輸入流程。請輸入『八字命盤』開始")])
+
         if all(k in user_data for k in ["birthday_date", "birthday_time", "gender"]):
             from bot.bazi import get_bazi_from_input
             dt_str = f"{user_data['birthday_date']} {user_data['birthday_time']}"
             result = get_bazi_from_input(dt_str, user_data["gender"])
+            # 清除狀態避免重複進入分析
+            save_user_data(user_id, "step", "done")
             return reply_message(reply_token, [TextMessage(text=result)])
         else:
             return reply_message(reply_token, [TextMessage(text="⚠️ 請先完成出生日期與性別輸入。")])
 
-    return  # 暫時忽略其他訊息
+    # 若使用者流程已完成但輸入多次命令，提示重新開始
+    if step == "done" and msg != "分析八字":
+        return reply_message(reply_token, [TextMessage(text="🔁 你已完成流程，如需重新開始，請輸入『八字命盤』")])
+
+    return
+
+# === 處理 Flex 選單返回的 Postback ===
+def handle_postback(event: PostbackEvent):
+    user_id = event.source.user_id
+    data = event.postback.data
+    reply_token = event.reply_token
+
+    if data == "birthday_selected" and event.postback.params:
+        date = event.postback.params.get("date")
+        if date:
+            save_user_data(user_id, "birthday_date", date.replace("-", "/"))
+    if data == "birthtime_selected" and event.postback.params:
+        time = event.postback.params.get("time")
+        if time:
+            save_user_data(user_id, "birthday_time", time[:5])
+
+    user_data = get_user_data(user_id)
+    if user_data.get("birthday_date") and user_data.get("birthday_time"):
+        save_user_data(user_id, "step", "ask_gender")
+        return reply_message(reply_token, [TextMessage(text="✅ 已接收出生資訊，請選擇性別。")])
