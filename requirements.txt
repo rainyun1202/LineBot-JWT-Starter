@@ -7,3 +7,4 @@ requests
 gunicorn
 firebase-admin
 lunar_python
+google-genai
