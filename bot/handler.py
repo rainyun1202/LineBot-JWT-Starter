@@ -86,9 +86,19 @@ def handle_text_message(event):
         save_user_data(user_id, "errors", 0)
         return ask_birthday_and_gender(reply_token)
 
+    if step == "done" and msg == "AI 分析":
+        if all(k in user_data for k in ["birthday_date", "birthday_time", "gender"]):
+            from bot.bazi import get_bazi_from_input
+            from bot.genai import ask_gemini_ai  # 新增 Gemini AI 分析模組
+            dt_str = f"{user_data['birthday_date']} {user_data['birthday_time']}"
+            bazi_result = get_bazi_from_input(dt_str, user_data["gender"])
+            ai_summary = ask_gemini_ai(bazi_result)
+            return reply_message(reply_token, [TextMessage(text=ai_summary)])
+        return reply_message(reply_token, [TextMessage(text="⚠️ 無法進行 AI 分析，請先完成八字資料輸入")])
+
     if step == "done":
         return reply_message(reply_token, [
-            TextMessage(text="✅ 你已完成輸入並分析，如需重新開始請輸入『八字命盤』")
+            TextMessage(text="✅ 你已完成輸入與分析，如需重新開始請輸入『八字命盤』")
         ])
 
     if step in ["ask_input", "ask_gender"]:
